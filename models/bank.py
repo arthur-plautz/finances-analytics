@@ -1,12 +1,14 @@
 from pynubank import Nubank
 from utils.decorators import verify_auth
 import pandas as pd
-
+import os
 
 class Bank:
     def __init__(self):
         self.__api = Nubank()
         self.__is_auth = False
+        self.__credit_data_path = f"{os.getcwd()}/data/credit_history.csv"
+        self.__account_data_path = f"{os.getcwd()}/data/account_history.csv"
     
     @property
     def is_auth(self):
@@ -27,11 +29,8 @@ class Bank:
         except Exception as e:
             print(e)
 
-    def __get_history(self, method, limit:int):
-        all_history = pd.DataFrame(
-            method()
-        )
-        return all_history.sample(limit) if limit else all_history
+    def __limit_history(self, history, limit:int):
+        return history.sample(limit) if limit else history
 
     @verify_auth
     def credit_history(self, limit:int=None):
@@ -39,8 +38,17 @@ class Bank:
         :param limit: credit card history statements rows limit
         :type int
         """
-        return self.__get_history(
-            self.__api.get_card_statements,
+        if os.access(self.__credit_data_path, os.F_OK):
+            df = pd.read_csv(
+                self.__credit_data_path
+            )
+        else:
+            df = pd.DataFrame(
+                self.__api.get_card_statements()
+            )
+            df.to_csv(self.__credit_data_path, index=False)
+        return self.__limit_history(
+            df,
             limit
         )
 
@@ -50,7 +58,16 @@ class Bank:
         :param limit: account history statements rows limit
         :type int
         """
-        return self.__get_history(
-            self.__api.get_account_statements,
+        if os.access(self.__account_data_path, os.F_OK):
+            df = pd.read_csv(
+                self.__account_data_path
+            )
+        else:
+            df = pd.DataFrame(
+                self.__api.get_account_statements()
+            )
+            df.to_csv(self.__account_data_path, index=False)
+        return self.__limit_history(
+            df,
             limit
         )

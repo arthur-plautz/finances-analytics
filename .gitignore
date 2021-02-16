@@ -127,4 +127,5 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-credentials/*
+credentials/*.p12
+data/*.csv

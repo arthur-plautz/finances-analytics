@@ -11,7 +11,7 @@ Tracking and Analyzing Expenses throughout many banks
     ```
     *.env.example*
 
-- sign in into nubank:
+- set credentials certificate:
     ```
     pynubank
     ```
