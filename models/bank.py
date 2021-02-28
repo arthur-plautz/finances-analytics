@@ -33,18 +33,27 @@ class Bank:
         return history.sample(limit) if limit else history
 
     @verify_auth
+    def __get_api_data(self, fund):
+        funds = {
+            'credit': self.__api.get_card_statements,
+            'account': self.__api.get_account_statements
+        }
+        method = funds[fund]
+        return method()
+
     def credit_history(self, limit:int=None):
         """
         :param limit: credit card history statements rows limit
         :type int
         """
-        if os.access(self.__credit_data_path, os.F_OK):
+        fund = 'credit'
+        if self.check_local_data(fund):
             df = pd.read_csv(
                 self.__credit_data_path
             )
         else:
             df = pd.DataFrame(
-                self.__api.get_card_statements()
+                self.__get_api_data(fund)
             )
             df.to_csv(self.__credit_data_path, index=False)
         return self.__limit_history(
@@ -52,22 +61,29 @@ class Bank:
             limit
         )
 
-    @verify_auth
     def account_history(self, limit:int=None):
         """
         :param limit: account history statements rows limit
         :type int
         """
-        if os.access(self.__account_data_path, os.F_OK):
+        fund = 'account'
+        if self.check_local_data(fund):
             df = pd.read_csv(
                 self.__account_data_path
             )
         else:
             df = pd.DataFrame(
-                self.__api.get_account_statements()
+                self.__get_api_data(fund)
             )
             df.to_csv(self.__account_data_path, index=False)
         return self.__limit_history(
             df,
             limit
         )
+
+    def check_local_data(self, fund):
+        funds = {
+            "credit": self.__credit_data_path,
+            "account": self.__account_data_path
+        }
+        return os.access(funds[fund], os.F_OK)

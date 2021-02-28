@@ -27,3 +27,10 @@ Tracking and Analyzing Expenses throughout many banks
     ```bash
     pip install -r requirements.txt
     ```
+
+## Contributing
+
+- updating requirements:
+    ```bash
+    pip freeze > requirements.txt
+    ```
