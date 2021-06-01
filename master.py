@@ -1,10 +1,10 @@
 from models.client import Client
+from models.time_analysis import TimeAnalysis
 
 client = Client()
 client.set_credit()
 
-client.set_year('2020')
-df_2020 = client.credit.time_resample_for_category('month')
+df = client.credit.time_resample('5D')
 
-client.set_year('2021')
-df_2021 = client.credit.time_resample_for_category('month')
+t = TimeAnalysis(df)
+t.plot_seasonal()
