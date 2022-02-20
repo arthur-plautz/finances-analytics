@@ -1,5 +1,5 @@
 from pynubank import Nubank
-from utils.decorators import verify_auth
+from utils.decorators import verify_auth, verify_credit_data, verify_account_data
 import pandas as pd
 import os
 
@@ -9,6 +9,10 @@ class Bank:
         self.__is_auth = False
         self.__credit_data_path = f"{os.getcwd()}/data/credit_history.csv"
         self.__account_data_path = f"{os.getcwd()}/data/account_history.csv"
+        self.__funds = {
+            "credit": self.__credit_data_path,
+            "account": self.__account_data_path
+        }
     
     @property
     def is_auth(self):
@@ -41,49 +45,43 @@ class Bank:
         method = funds[fund]
         return method()
 
+    def fetch_data(self, fund):
+        try:
+            df = pd.DataFrame(
+                self.__get_api_data(fund)
+            )
+            df.to_csv(self.__funds[fund], index=False)
+            print(f'Success fetching data from {fund}')
+        except Exception as e:
+            print(e)
+
+    @verify_credit_data
     def credit_history(self, limit:int=None):
         """
         :param limit: credit card history statements rows limit
         :type int
         """
-        fund = 'credit'
-        if self.check_local_data(fund):
-            df = pd.read_csv(
-                self.__credit_data_path
-            )
-        else:
-            df = pd.DataFrame(
-                self.__get_api_data(fund)
-            )
-            df.to_csv(self.__credit_data_path, index=False)
+        df = pd.read_csv(
+            self.__credit_data_path
+        )            
         return self.__limit_history(
             df,
             limit
         )
 
+    @verify_account_data
     def account_history(self, limit:int=None):
         """
         :param limit: account history statements rows limit
         :type int
         """
-        fund = 'account'
-        if self.check_local_data(fund):
-            df = pd.read_csv(
-                self.__account_data_path
-            )
-        else:
-            df = pd.DataFrame(
-                self.__get_api_data(fund)
-            )
-            df.to_csv(self.__account_data_path, index=False)
+        df = pd.read_csv(
+            self.__account_data_path
+        )
         return self.__limit_history(
             df,
             limit
         )
 
     def check_local_data(self, fund):
-        funds = {
-            "credit": self.__credit_data_path,
-            "account": self.__account_data_path
-        }
-        return os.access(funds[fund], os.F_OK)
+        return os.access(self.__funds[fund], os.F_OK)

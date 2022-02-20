@@ -6,7 +6,7 @@ class Client:
     def __init__(self):
         self.__user = str(os.environ.get('AUTH_USER'))
         self.__pass = str(os.environ.get('AUTH_PASS'))
-        self.__cert_path = f"{os.getcwd()}/{os.environ.get('AUTH_PATH')}"
+        self.__cert_path = f"{os.getcwd()}/{os.environ.get('AUTH_PATH', 'credentials/cert.p12')}"
         self.__bank = Bank()
 
     def auth(self):

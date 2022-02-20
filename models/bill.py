@@ -4,8 +4,17 @@ from datetime import datetime
 
 class Bill:
     def __init__(self, data:DataFrame):
-        self.__data = data
+        self.data = data
         self.qualitative_time = data
+
+    @property
+    def data(self):
+        return self.__data
+
+    @data.setter
+    def data(self, data):
+        data.amount = [a/100 for a in data.amount]
+        self.__data = data
 
     @property
     def categories(self):
@@ -17,7 +26,7 @@ class Bill:
 
     @qualitative_time.setter
     def qualitative_time(self, df):
-        df.time = [datetime.strptime(dt, "%Y-%m-%dT%H:%M:%SZ") for dt in df.time]
+        df.time = pd.to_datetime(df.time)
         df['t_year'] = [dt.year for dt in df.time]
         df['t_month'] = [dt.month for dt in df.time]
         df['t_day'] = [dt.day for dt in df.time]
