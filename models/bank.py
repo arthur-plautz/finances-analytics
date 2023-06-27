@@ -4,16 +4,21 @@ import pandas as pd
 import os
 
 class Bank:
-    def __init__(self):
+    def __init__(self, user_id):
         self.__api = Nubank()
         self.__is_auth = False
-        self.__credit_data_path = f"{os.getcwd()}/data/credit_history.csv"
-        self.__account_data_path = f"{os.getcwd()}/data/account_history.csv"
+        self.__user_id = user_id
+        self.__credit_data_path = f"{os.getcwd()}/data/{self.__user_id}/credit_history.csv"
+        self.__account_data_path = f"{os.getcwd()}/data/{self.__user_id}/account_history.csv"
         self.__funds = {
             "credit": self.__credit_data_path,
             "account": self.__account_data_path
         }
-    
+
+    @property
+    def user_id(self):
+        return self.__user_id
+
     @property
     def is_auth(self):
         return self.__is_auth

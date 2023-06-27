@@ -129,5 +129,7 @@ dmypy.json
 .pyre/
 
 credentials/*.p12
+credentials/*.json
 data/*.csv
+data/*/*.csv
 *.ipynb

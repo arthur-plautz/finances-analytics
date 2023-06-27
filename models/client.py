@@ -1,13 +1,20 @@
 from models.bank import Bank
 from models.bill import Bill
+import json
 import os
 
 class Client:
-    def __init__(self):
-        self.__user = str(os.environ.get('AUTH_USER'))
-        self.__pass = str(os.environ.get('AUTH_PASS'))
-        self.__cert_path = f"{os.getcwd()}/{os.environ.get('AUTH_PATH', 'credentials/cert.p12')}"
-        self.__bank = Bank()
+    def __init__(self, credentials_path):
+        self.__read_credentials(credentials_path)
+        self.__bank = Bank(self.user)
+
+    def __read_credentials(self, credentials_path):
+        credentials_file = open(f'{os.getcwd()}/{credentials_path}', 'r')
+        credentials = json.load(credentials_file)
+        self.__id = credentials.get('id')
+        self.__user = credentials.get('user')
+        self.__pass = credentials.get('pass')
+        self.__cert_path = f"{os.getcwd()}/{credentials.get('cert')}"
 
     def auth(self):
         self.__bank.auth(self.__user, self.__pass, self.__cert_path)
@@ -19,6 +26,10 @@ class Client:
     def set_account(self):
         data = self.bank.account_history()
         self.__account = Bill(data)
+
+    @property
+    def user(self):
+        return self.__id
 
     @property
     def credit(self):
